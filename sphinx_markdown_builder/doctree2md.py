@@ -159,7 +159,7 @@ https://github.com/cgwrench/rst2md
      SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
-from __future__ import unicode_literals
+
 
 import re
 from textwrap import dedent
@@ -247,7 +247,7 @@ def add_pref_suff(pref_suff_map):
         # Need _make_method to ensure new variable picked up for each iteration
         # of the loop.  The defined method picks up this new variable in its
         # scope.
-        for key, (prefix, suffix) in pref_suff_map.items():
+        for key, (prefix, suffix) in list(pref_suff_map.items()):
             setattr(cls, "visit_" + key, _make_method(prefix))
             setattr(cls, "depart_" + key, _make_method(suffix))
         return cls
@@ -329,11 +329,11 @@ class Translator(nodes.NodeVisitor):
         # Reset attributes modified by reading
         self.reset()
         # Attribute shortcuts
-        self.head, self.body, self.foot = self._lists.values()
+        self.head, self.body, self.foot = list(self._lists.values())
 
     def reset(self):
         """ Initialize object for fresh read """
-        for part in self._lists.values():
+        for part in list(self._lists.values()):
             part[:] = []
 
         # Current section heading level during writing
@@ -359,7 +359,7 @@ class Translator(nodes.NodeVisitor):
 
     def astext(self):
         """Return the final formatted document as a string."""
-        parts = ["".join(lines).strip() for lines in self._lists.values()]
+        parts = ["".join(lines).strip() for lines in list(self._lists.values())]
         parts = [part + "\n\n" for part in parts if part]
         return "".join(parts).strip() + "\n"
 

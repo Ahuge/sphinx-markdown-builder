@@ -58,8 +58,8 @@ class MarkdownBuilder(Builder):
     def prepare_writing(self, docnames):
 
         # copy dependencies (images, references files)
-        print "copying dependencies..."
-        for (doc, deps) in self.env.dependencies.iteritems():
+        print("copying dependencies...")
+        for (doc, deps) in list(self.env.dependencies.items()):
             for dep in deps:
                 source = os.path.abspath(os.path.join(self.srcdir, dep))
                 target = os.path.abspath(os.path.join(self.outdir, dep))
@@ -69,10 +69,10 @@ class MarkdownBuilder(Builder):
                     os.makedirs(target_dir)
 
                 if not os.path.exists(source):
-                    print "warning: cannot find resource %s referenced from %s" % (
+                    print(("warning: cannot find resource %s referenced from %s" % (
                         dep,
                         doc,
-                    )
+                    )))
                 else:
                     if not os.path.exists(target):
                         shutil.copy(source, target)
@@ -82,7 +82,7 @@ class MarkdownBuilder(Builder):
         self.grandparents = {}
 
         # figure out parents
-        for (parent, children) in self.env.toctree_includes.iteritems():
+        for (parent, children) in list(self.env.toctree_includes.items()):
             for child in children:
                 self.parents[child] = parent
 
@@ -102,7 +102,7 @@ class MarkdownBuilder(Builder):
                     self.parents[rst_index_path] = "@{}".format(parent)
 
         # figure out grandparents
-        for (docname, parent) in self.parents.iteritems():
+        for (docname, parent) in list(self.parents.items()):
             self.grandparents[docname] = self.parents.get(parent)
 
         self.writer = MarkdownWriter(self)

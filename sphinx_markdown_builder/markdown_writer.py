@@ -37,12 +37,12 @@ class MarkdownTranslator(Translator):
                 ].astext()
 
         # figure out if we have children
-        if self.builder.current_docname in self.builder.parents.itervalues():
+        if self.builder.current_docname in iter(self.builder.parents.values()):
             # our page is declared as a parent page
             variables["has_children"] = "true"
 
         frontmatter = ["---"]
-        for (k, v) in variables.iteritems():
+        for (k, v) in variables.items():
             frontmatter.append("{}: {}".format(k, v))
         frontmatter.append("---")
         frontmatter.append("")
@@ -264,18 +264,18 @@ class MarkdownTranslator(Translator):
         Image directive
         """
         uri = node.attributes["uri"]
-        print node
-        print node.attributes
-        print self.builder.current_docname
+        print(node)
+        print(node.attributes)
+        print(self.builder.current_docname)
         doc_folder = os.path.dirname(self.builder.current_docname)
-        print doc_folder
+        print(doc_folder)
         if uri.startswith(doc_folder):
             # drop docname prefix
             uri = uri[len(doc_folder) :]
-            print "dropped precix: '%s'" % uri
+            print("dropped precix: '%s'" % uri)
             if uri.startswith("/"):
                 uri = "." + uri
-            print "added local: %s" % uri
+            print("added local: %s" % uri)
         self.add("\n\n![image](%s)\n\n" % uri)
 
     def depart_image(self, node):
