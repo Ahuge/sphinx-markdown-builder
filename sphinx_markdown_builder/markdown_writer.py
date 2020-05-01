@@ -3,8 +3,8 @@ from .doctree2md import Translator, Writer
 import os
 import sys
 
-class MarkdownTranslator(Translator):
 
+class MarkdownTranslator(Translator):
     def __init__(self, document, builder=None):
         Translator.__init__(self, document, builder=None)
         self.builder = builder
@@ -13,8 +13,8 @@ class MarkdownTranslator(Translator):
 
     def depart_document(self, node):
         variables = {
-            'layout': 'default',
-            'title': self.builder.env.longtitles[self.builder.current_docname].astext()
+            "layout": "default",
+            "title": self.builder.env.longtitles[self.builder.current_docname].astext(),
         }
 
         # figure our parent
@@ -22,34 +22,36 @@ class MarkdownTranslator(Translator):
         if parent:
             if parent.startswith("@"):
                 # external reference to markdown page
-                variables['parent'] = parent[1:]
+                variables["parent"] = parent[1:]
             else:
-                variables['parent'] = self.builder.env.longtitles[parent].astext()
+                variables["parent"] = self.builder.env.longtitles[parent].astext()
 
         # figure out our grandparent
         grandparent = self.builder.grandparents.get(self.builder.current_docname)
         if grandparent:
             if grandparent.startswith("@"):
-                variables['grand_parent'] = grandparent[1:]
+                variables["grand_parent"] = grandparent[1:]
             else:
-                variables['grand_parent'] = self.builder.env.longtitles[grandparent].astext()
+                variables["grand_parent"] = self.builder.env.longtitles[
+                    grandparent
+                ].astext()
 
         # figure out if we have children
         if self.builder.current_docname in self.builder.parents.itervalues():
             # our page is declared as a parent page
-            variables['has_children'] = 'true'
+            variables["has_children"] = "true"
 
-        frontmatter = ['---']
+        frontmatter = ["---"]
         for (k, v) in variables.iteritems():
-            frontmatter.append('{}: {}'.format(k, v))
-        frontmatter.append('---')
-        frontmatter.append('')
+            frontmatter.append("{}: {}".format(k, v))
+        frontmatter.append("---")
+        frontmatter.append("")
 
-        self.add("\n".join(frontmatter), section='head')
+        self.add("\n".join(frontmatter), section="head")
         Translator.depart_document(self, node)
 
     def visit_title(self, node):
-        self.add((self.section_level) * '#' + ' ')
+        self.add((self.section_level) * "#" + " ")
 
     def visit_Text(self, node):
         # overridden from base class implementation
@@ -73,14 +75,10 @@ class MarkdownTranslator(Translator):
         if not self.rendering_table:
             Translator.depart_paragraph(self, node)
 
-
-
     def __placeholder(self, node, is_entry=True):
-        self.add('`<%s>`\n' % (node.__class__))
+        self.add("`<%s>`\n" % (node.__class__))
         # print "VISIT %s: %s" % (node.__class__, node)
         # self.add('%s: %s' % (node.__class__, node.astext()))
-
-
 
     # auto formatting of code
 
@@ -100,16 +98,11 @@ class MarkdownTranslator(Translator):
     #
     #
 
-
-
-
-
-
     def visit_desc(self, node):
         # auto doc
-        #self.add("\n\n```")
-        #self.add(node.pformat())
-        #self.add("```\n\n")
+        # self.add("\n\n```")
+        # self.add(node.pformat())
+        # self.add("```\n\n")
         pass
 
     def depart_desc(self, node):
@@ -174,7 +167,6 @@ class MarkdownTranslator(Translator):
         if node.next_node(descend=False, siblings=True):
             self.add(", ")
 
-
     # list of parameters/return values/exceptions
     #
     # field_list
@@ -213,9 +205,6 @@ class MarkdownTranslator(Translator):
     def depart_literal_emphasis(self, node):
         self.add("*")
 
-
-
-
     def visit_title_reference(self, node):
         pass
 
@@ -236,7 +225,7 @@ class MarkdownTranslator(Translator):
         """
         Sphinx warning directive
         """
-        self.add('**WARNING**: ')
+        self.add("**WARNING**: ")
 
     def depart_warning(self, node):
         """
@@ -248,7 +237,7 @@ class MarkdownTranslator(Translator):
         """
         Sphinx note directive
         """
-        self.add('**NOTE**: ')
+        self.add("**NOTE**: ")
 
     def depart_note(self, node):
         """
@@ -274,7 +263,7 @@ class MarkdownTranslator(Translator):
         """
         Image directive
         """
-        uri = node.attributes['uri']
+        uri = node.attributes["uri"]
         print node
         print node.attributes
         print self.builder.current_docname
@@ -282,12 +271,12 @@ class MarkdownTranslator(Translator):
         print doc_folder
         if uri.startswith(doc_folder):
             # drop docname prefix
-            uri = uri[len(doc_folder):]
+            uri = uri[len(doc_folder) :]
             print "dropped precix: '%s'" % uri
             if uri.startswith("/"):
                 uri = "." + uri
             print "added local: %s" % uri
-        self.add('\n\n![image](%s)\n\n' % uri)
+        self.add("\n\n![image](%s)\n\n" % uri)
 
     def depart_image(self, node):
         """
@@ -308,7 +297,6 @@ class MarkdownTranslator(Translator):
         See http://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html
         """
         pass
-
 
     ################################################################################
     # tables
@@ -342,7 +330,7 @@ class MarkdownTranslator(Translator):
         pass
 
     def visit_tgroup(self, node):
-        self.num_table_colums = node.attributes['cols']
+        self.num_table_colums = node.attributes["cols"]
 
     def depart_tgroup(self, node):
         pass
@@ -357,19 +345,19 @@ class MarkdownTranslator(Translator):
         # markdown tables require a header (thead)
         # inject one if missing
         tgroup_node = node.parent
-        if 'thead' not in [x.__class__.__name__ for x in tgroup_node.children]:
+        if "thead" not in [x.__class__.__name__ for x in tgroup_node.children]:
             header = " | ".join(["   "] * self.num_table_colums)
             self.add("| %s |\n" % header)
 
         # add table header/body separation
         header = " | ".join(["---"] * self.num_table_colums)
-        self.add("| %s |\n" % header )
+        self.add("| %s |\n" % header)
 
     def depart_tbody(self, node):
         pass
 
     def visit_row(self, node):
-        self.add('| ')
+        self.add("| ")
 
     def depart_row(self, node):
         self.add("\n")
@@ -378,14 +366,13 @@ class MarkdownTranslator(Translator):
         pass
 
     def depart_entry(self, node):
-        self.add(' | ')
+        self.add(" | ")
 
     def visit_tabular_col_spec(self, node):
         pass
 
     def depart_tabular_col_spec(self, node):
         pass
-
 
 
 class MarkdownWriter(Writer):
